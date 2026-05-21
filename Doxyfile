@@ -1,0 +1,15 @@
+# Minimal Doxygen config (aligned with jamesread/libAllure Pages workflow: HTML_OUTPUT = api-docs)
+
+PROJECT_NAME           = "OliveTin PHP bindings"
+
+INPUT                  = src
+RECURSIVE              = YES
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+
+HTML_OUTPUT            = api-docs
+
+FILE_PATTERNS          = *.php
+
+EXTENSION_MAPPING      = php=C
