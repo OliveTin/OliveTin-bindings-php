@@ -2,6 +2,11 @@
 
 Small PHP bindings for the [OliveTin](https://github.com/OliveTin/OliveTin) **Connect RPC** HTTP JSON API. This package focuses on **starting actions** (fire-and-forget and wait-for-completion variants).
 
+## Links
+
+- **[Packagist package](https://packagist.org/packages/jwread/olivetin-bindings-php)** — Composer metadata and releases
+- **[OliveTin (upstream)](https://github.com/OliveTin/OliveTin)** — main OliveTin server repository
+
 ## Requirements
 
 - PHP 8.1+
