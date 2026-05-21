@@ -85,7 +85,7 @@ jobs:
           fetch-depth: 0
 
       - name: release
-        uses: cycjimmy/semantic-release-action@v4.2.0
+        uses: cycjimmy/semantic-release-action@v6.0.0
         with:
           semantic_version: 24.2.3 # https://github.com/cycjimmy/semantic-release-action/issues/243
 
