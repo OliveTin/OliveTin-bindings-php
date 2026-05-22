@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OliveTin\Api;
 
 /**
- * Minimal OliveTin Connect-RPC (JSON) client focused on starting actions.
+ * Minimal OliveTin Connect-RPC (JSON) client for session bootstrap and starting actions.
  *
  * Credentials are sent only as {@see https://datatracker.ietf.org/doc/html/rfc6750 Bearer}
  * tokens in the {@code Authorization} header. OliveTin treats this value as a JWT when JWT
@@ -24,6 +24,17 @@ final class OliveTinClient
         if ($this->apiKey === '') {
             throw new \InvalidArgumentException('API key must not be empty.');
         }
+    }
+
+    /**
+     * Call {@code Init} (same bootstrap RPC the web UI uses). Useful to verify TLS, bearer auth,
+     * and that the OliveTin API path is reachable.
+     *
+     * @return array<string, mixed> Decoded {@code InitResponse} (camelCase JSON keys per Connect)
+     */
+    public function init(): array
+    {
+        return $this->postUnary('Init', []);
     }
 
     /**
@@ -67,32 +78,6 @@ final class OliveTinClient
     }
 
     /**
-     * Start an action by public {@code action_id} (single-parameter variant).
-     *
-     * @return array{executionTrackingId: string}
-     */
-    public function startActionByGet(string $actionId): array
-    {
-        return $this->postUnary('StartActionByGet', ['actionId' => $actionId]);
-    }
-
-    /**
-     * Start by {@code action_id} and wait until completion.
-     *
-     * @return array<string, mixed> Decoded {@code LogEntry}
-     */
-    public function startActionByGetAndWait(string $actionId): array
-    {
-        $response = $this->postUnary('StartActionByGetAndWait', ['actionId' => $actionId]);
-
-        if (!isset($response['logEntry']) || !is_array($response['logEntry'])) {
-            throw new OliveTinApiException('Response missing logEntry', 200);
-        }
-
-        return $response['logEntry'];
-    }
-
-    /**
      * @param array<string, string> $arguments
      * @return list<array{name: string, value: string}>
      */
@@ -117,7 +102,7 @@ final class OliveTinClient
     {
         $url = rtrim($this->baseUrl, '/') . '/' . trim($this->apiPrefix, '/') . self::SERVICE_PATH . '/' . $procedure;
 
-        $payload = json_encode($body, JSON_THROW_ON_ERROR);
+        $payloadJson = json_encode($body === [] ? new \stdClass() : $body, JSON_THROW_ON_ERROR);
 
         $headers = [
             'Content-Type: application/json',
@@ -133,7 +118,7 @@ final class OliveTinClient
 
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_POSTFIELDS => $payloadJson,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,

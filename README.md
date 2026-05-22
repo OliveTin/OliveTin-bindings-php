@@ -1,6 +1,6 @@
 # OliveTin PHP API client
 
-Small PHP bindings for the [OliveTin](https://github.com/OliveTin/OliveTin) **Connect RPC** HTTP JSON API. This package focuses on **starting actions** (fire-and-forget and wait-for-completion variants).
+Small PHP bindings for the [OliveTin](https://github.com/OliveTin/OliveTin) **Connect RPC** HTTP JSON API. Supported calls include **`Init`** (connection and auth check), plus **starting actions** (fire-and-forget and wait-for-completion).
 
 ## Links
 
@@ -50,6 +50,8 @@ use OliveTin\Api\OliveTinApiException;
 $client = new OliveTinClient('http://127.0.0.1:1337', getenv('OLIVETIN_TOKEN'));
 
 try {
+    $client->init();
+
     $started = $client->startAction(
         bindingId: 'your-binding-id',
         arguments: ['message' => 'hello'],
@@ -78,10 +80,9 @@ new OliveTinClient('https://example.com', $token, apiPrefix: '/olivetin/api');
 
 | Method | Purpose |
 |--------|---------|
+| `init` | Bootstrap / session metadata; use to verify the server and bearer token |
 | `startAction` | Start using **binding id** + optional arguments |
 | `startActionAndWait` | Start using **action id**, block until finished |
-| `startActionByGet` | Start using **action id** only (RPC name; still POST JSON) |
-| `startActionByGetAndWait` | Same, blocking |
 
 Protobuf JSON uses **camelCase** field names (for example `executionTrackingId`, `bindingId`).
 
