@@ -1,3 +1,4 @@
 /vendor/
 /api-docs/
+.compat-worktrees/
 .phpunit.result.cache

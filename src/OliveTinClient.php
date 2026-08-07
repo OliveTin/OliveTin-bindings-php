@@ -127,12 +127,12 @@ final class OliveTinClient
         $raw = curl_exec($ch);
         if ($raw === false) {
             $err = curl_error($ch);
-            curl_close($ch);
+            unset($ch);
             throw new OliveTinApiException('cURL error: ' . $err, 0);
         }
 
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        unset($ch);
 
         try {
             /** @var array<string, mixed>|null $decoded */

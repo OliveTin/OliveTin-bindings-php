@@ -2,15 +2,27 @@
 
 Small PHP bindings for the [OliveTin](https://github.com/OliveTin/OliveTin) **Connect RPC** HTTP JSON API. Supported calls include **`Init`** (connection and auth check), plus **starting actions** (fire-and-forget and wait-for-completion).
 
+[![Release Pipeline](https://github.com/OliveTin/OliveTin-bindings-php/actions/workflows/release.yml/badge.svg)](https://github.com/OliveTin/OliveTin-bindings-php/actions/workflows/release.yml)
+[![PHP Compatibility](https://github.com/OliveTin/OliveTin-bindings-php/actions/workflows/compat.yml/badge.svg)](https://github.com/OliveTin/OliveTin-bindings-php/actions/workflows/compat.yml)
+
 ## Links
 
 - **[Packagist package](https://packagist.org/packages/jwread/olivetin-bindings-php)** — Composer metadata and releases
 - **[OliveTin (upstream)](https://github.com/OliveTin/OliveTin)** — main OliveTin server repository
 
-## Requirements
+## Compatibility
 
-- PHP 8.1+
-- Extensions: `json`, `curl`
+Supported PHP versions are those where the current implementation passes the
+compatibility suite with **`failOnDeprecation`** enabled (no deprecated PHP APIs).
+The matrix is defined in `compat/matrix.json` and enforced by `.github/workflows/compat.yml`.
+
+|                              | Latest | PHP 8.1            | PHP 8.2            | PHP 8.3            | PHP 8.4            | PHP 8.5            |
+| ---------------------------- | ------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| olivetin-bindings-php 1.x    | 1.1.0  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+
+`composer.json` requires `php: >=8.1`. Extensions: `json`, `curl`.
+
+Run the full matrix locally with `make compat` (requires Docker for PHP versions other than your host).
 
 ## Install
 
@@ -90,7 +102,8 @@ Protobuf JSON uses **camelCase** field names (for example `executionTrackingId`,
 
 CI and publishing follow the same shape as [jamesread/libAllure](https://github.com/jamesread/libAllure), with a few adjustments for safer defaults:
 
-- **`.github/workflows/release.yml`** — PHP matrix (`composer update` with `prefer-lowest` / `prefer-stable`), then `make phpstan`, `make lint`, and `make tests`, plus **`composer audit`** on one representative cell (PHP 8.4 + `prefer-stable`). The **`release`** job runs only on **`push` to `main`**, checks out **full history** (`fetch-depth: 0`), and runs [semantic-release](https://semantic-release.gitbook.io/) from `.releaserc.yaml` (GitHub releases from [Conventional Commits](https://www.conventionalcommits.org/)).
+- **`.github/workflows/compat.yml`** — PHP compatibility matrix from `compat/matrix.json` (1.x × PHP 8.1–8.5); runs the deprecation-strict PHPUnit suite on every push and pull request.
+- **`.github/workflows/release.yml`** — PHP matrix (`composer update` with `prefer-lowest` / `prefer-stable` on PHP 8.1–8.5), then `make phpstan`, `make lint`, and `make tests`, plus **`composer audit`** on one representative cell (PHP 8.5 + `prefer-stable`). The **`release`** job runs only on **`push` to `main`**, checks out **full history** (`fetch-depth: 0`), and runs [semantic-release](https://semantic-release.gitbook.io/) from `.releaserc.yaml` (GitHub releases from [Conventional Commits](https://www.conventionalcommits.org/)).
 - **`GITHUB_TOKEN` vs PAT** — the release step uses the workflow **`GITHUB_TOKEN`** with explicit job permissions (`contents`, `issues`, `pull-requests`: **write**), matching upstream semantic-release guidance. That is enough for releases **in this repository**. Use a PAT (for example libAllure’s `CONTAINER_TOKEN`) only if you need behaviour `GITHUB_TOKEN` cannot provide (examples: releasing from **another** repo, bypassing **branch protection** without “GitHub Actions” bypass rules, or triggering downstream workflows that ignore `GITHUB_TOKEN` events).
 - **`.github/workflows/doxygen.yml`** — builds HTML API docs with Doxygen (`Doxyfile`, output under `api-docs/`) and deploys them to **GitHub Pages** when `main` is pushed (enable Pages with the **GitHub Actions** source in the repo settings). The **`github-pages`** environment must exist (GitHub creates it on first Pages deploy); restricted deployment protections may require approval on the first run.
 
@@ -100,6 +113,7 @@ Local equivalents:
 composer install
 make            # tests + lint
 make phpstan
+make compat     # full PHP matrix (Docker for other versions)
 make docs       # requires `doxygen` on PATH
 ```
 

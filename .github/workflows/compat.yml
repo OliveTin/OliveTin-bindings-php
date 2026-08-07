@@ -1,0 +1,69 @@
+name: PHP Compatibility
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compat:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - line: 1.x
+            ref: HEAD
+            php: "8.1"
+          - line: 1.x
+            ref: HEAD
+            php: "8.2"
+          - line: 1.x
+            ref: HEAD
+            php: "8.3"
+          - line: 1.x
+            ref: HEAD
+            php: "8.4"
+          - line: 1.x
+            ref: HEAD
+            php: "8.5"
+
+    name: ${{ matrix.line }} / PHP ${{ matrix.php }}
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout release under test
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.ref }}
+          path: src
+          fetch-depth: 0
+
+      - name: Checkout compatibility harness
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            compat
+          path: harness
+
+      - name: Add shared compatibility test config
+        run: |
+          mkdir -p compat
+          cp ../harness/compat/phpunit.xml compat/phpunit.xml
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, json, libxml, mbstring, tokenizer, xml, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: |
+          composer config audit.block-insecure false
+          composer install --no-interaction --prefer-dist
+
+      - name: Run compatibility tests
+        run: ./vendor/bin/phpunit -c compat/phpunit.xml
