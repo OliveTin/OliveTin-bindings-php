@@ -36,7 +36,9 @@ jobs:
       - name: Checkout release under test
         uses: actions/checkout@v6
         with:
-          ref: ${{ matrix.ref }}
+          # actions/checkout does not accept the symbolic ref "HEAD"; map it to
+          # the commit that triggered this workflow. Named refs/tags pass through.
+          ref: ${{ matrix.ref == 'HEAD' && github.sha || matrix.ref }}
           path: src
           fetch-depth: 0
 
