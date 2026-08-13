@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout release under test
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # actions/checkout does not accept the symbolic ref "HEAD"; map it to
           # the commit that triggered this workflow. Named refs/tags pass through.
@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout compatibility harness
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           sparse-checkout: |
             compat
